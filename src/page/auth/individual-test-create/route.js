@@ -2,10 +2,9 @@ import Page from ".";
 
 const Route = [
   {
-    url: "dashboard",
+    url: "dashboard/individual",
     Element: Page,
     meta: { isAuth: true },
   },
 ];
-
 export default Route;
