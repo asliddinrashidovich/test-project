@@ -6,7 +6,7 @@ function Page() {
   const [quizList, setQuizList] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const socketRef = useRef(studentSocket);
-  const quizes = JSON.parse(localStorage.getItem("quiz"));
+  // const quizes = JSON.parse(localStorage.getItem("quiz"));
   const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   useEffect(() => {
@@ -28,8 +28,9 @@ function Page() {
 
     socket.on("quizList", handleQuizList);
     socket.on("answerIsCorrect", (data) => {
-      console.log(data)
-    })
+      console.log("Bu ishladi");
+      console.log(data);
+    });
 
     return () => {
       // socket.off();
@@ -49,12 +50,14 @@ function Page() {
       questionId,
       roomCode: studentData.roomCode,
     });
-    console.log(("answer", {
-      answerId,
-      questionId,
-      roomCode: studentData.roomCode,
-    }))
-
+    console.log(
+      ("answer",
+      {
+        answerId,
+        questionId,
+        roomCode: studentData.roomCode,
+      })
+    );
   };
 
   return (
@@ -69,7 +72,7 @@ function Page() {
           Qolgan vaqt: <span className="text-orange-300">53</span>
         </h3>
       </div>
-      {quizes?.quiz?.questions.map((item, index) => (
+      {quizList.map((item, index) => (
         <div
           key={index}
           className="max-w-[1000px] mx-auto w-full p-10 bg-[#141f25] rounded-[30px] mb-10"
