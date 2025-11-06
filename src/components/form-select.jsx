@@ -9,7 +9,7 @@ export default function SelectVariants() {
 
   const handleChange = (event) => {
     setAge(event.target.value);
-  };
+  }
 
   return (
     <div>

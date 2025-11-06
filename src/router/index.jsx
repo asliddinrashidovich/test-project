@@ -11,6 +11,7 @@ import StudentName from "../page/student/student-name/index";
 import StudentResult from "../page/student/student-result/index";
 import StudentStatus from "../page/student/student-status/index";
 import StudentQuestion from "../page/student/stutent-question/index";
+import { useAuthStore } from "../store/useAuthStore";
 
 const dynamicImportedRoutes = import.meta.glob("../page/**/**/route.js", {
   eager: true,
@@ -38,10 +39,10 @@ const nestedRoutes = (routes) =>
   });
 
 function MyRoutes() {
-  //   const accessToken = useAuthStore((state) => state.accessToken);
+    const accessToken = useAuthStore((state) => state.accessToken);
   //   const meUser = useAuthStore((state) => state.useId);
 
-  const accessToken = localStorage.getItem("accessToken");
+  // const accessToken = localStorage.getItem("accessToken");
   
   return (
     <Routes>
@@ -61,7 +62,7 @@ function MyRoutes() {
           <Route path={"/students/name"} element={<StudentName />} />
           <Route path={"/students/result"} element={<StudentResult />} />
           <Route path={"/students/status"} element={<StudentStatus />} />
-          <Route path={"/students/question"} element={<StudentQuestion />} />
+          <Route path={"/students/questions"} element={<StudentQuestion />} />
           <Route path="/*" element={<Navigate to="/login" />} />
         </Route>
       )}

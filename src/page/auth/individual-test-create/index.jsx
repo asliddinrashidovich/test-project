@@ -8,9 +8,7 @@ function Page() {
           Yakka tartibli test yaratish
         </h3>
       </div>
-      <div className='max-w-[1000px] mx-auto w-full py-15 px-5 sm:px-10 min-[1000px]:px-20 bg-[#141f25] rounded-[30px]'>
-        <FormContent/>
-      </div>
+      <FormContent/>
     </div>
   )
 }

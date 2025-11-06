@@ -1,26 +1,29 @@
-import TouchRipple from "@mui/material/ButtonBase/TouchRipple";
 import { User, Users } from "lucide-react";
-import { useRef } from "react";
+import { useQueryState } from "nuqs";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store/useAuthStore";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 function Page() {
-  const rippleRef = useRef(null);
-  const rippleRef2 = useRef(null);
-  const navigate = useNavigate()
+  const [, setQuizId] = useQueryState("quizId");
+  const navigate = useNavigate();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  const handleRipple = (e) => {
-    navigate("/dashboard/group")
-    rippleRef.current?.start(e);
-    setTimeout(() => {
-      rippleRef.current?.stop(e);
-    }, 300);
-  };
-  const handleRipple2 = (e) => {
-    navigate("/dashboard/individual")
-    rippleRef2.current?.start(e);
-    setTimeout(() => {
-      rippleRef2.current?.stop(e);
-    }, 300);
+  const handleRipple = async (data) => {
+    try {
+      const res = await axios.post(`/api/quiz`, {type: data}, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+        },
+      });
+      setQuizId(res?.data?.data.id);
+      localStorage.setItem("roomCode", JSON.stringify(res?.data?.data))
+      navigate("/dashboard/quiz");
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? "Something went wrong!");
+    }
   };
 
   return (
@@ -32,23 +35,24 @@ function Page() {
       </div>
 
       <div className="max-w-[1000px] mx-auto grid grid-cols-1 min-[600px]:grid-cols-2 gap-[50px] min-[1000px]:gap-[100px]">
-        <div onClick={handleRipple2} className="relative overflow-hidden flex justify-center items-center h-[250px] px-20 bg-[#141f25] rounded-[30px] cursor-pointer hover:bg-[#1d2b33] transition-all duration-300">
+        <div
+          onClick={() => handleRipple("INDIVIDUAL")}
+          className="relative overflow-hidden flex justify-center items-center h-[250px] px-20 bg-[#141f25] rounded-[30px] cursor-pointer hover:bg-[#1d2b33] transition-all duration-300"
+        >
           <h3 className="text-[30px] min-[1000px]:text-[40px] text-white leading-[100%] font-bold flex items-center flex-col gap-3">
-            <User size={45}/>
+            <User size={45} />
             Yakka
           </h3>
-          <TouchRipple ref={rippleRef2} center={false} />
         </div>
 
         <div
-          onClick={handleRipple}
+          onClick={() => handleRipple("TEAM")}
           className="relative overflow-hidden flex justify-center items-center h-[250px] px-20 bg-[#141f25] rounded-[30px] cursor-pointer hover:bg-[#1d2b33] transition-all duration-300"
         >
           <h3 className="text-[30px] min-[1000px]:text-[40px] text-white leading-[100%] font-bold z-10 flex items-center flex-col gap-3">
-            <Users size={45}/>
+            <Users size={45} />
             Jamoaviy
           </h3>
-          <TouchRipple ref={rippleRef} center={false} />
         </div>
       </div>
     </div>

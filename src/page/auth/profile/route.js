@@ -2,7 +2,7 @@ import Page from ".";
 
 const Route = [
   {
-    url: "dashboard/quiz/start",
+    url: "profile",
     Element: Page,
     meta: { isAuth: true },
   },
