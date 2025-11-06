@@ -15,9 +15,16 @@ function Page() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`/api/quiz/room-code`, {roomCode: rCode});
+      const res = await axios.post(`/api/quiz/room-code`, { roomCode: rCode });
       setRoomCode(rCode);
-      localStorage.setItem("roomData", JSON.stringify(res?.data?.data))
+      const quiz = res.data.data;
+      console.log("quiz =>", quiz);
+      localStorage.setItem(
+        "studentData",
+        JSON.stringify({ roomCode: quiz.roomCode })
+      );
+
+      // localStorage.setItem("roomData", JSON.stringify(res?.data?.data))
       navigate("/students/name");
     } catch (err) {
       toast.error(err?.response?.data?.message ?? "Something went wrong!");

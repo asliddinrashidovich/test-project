@@ -1,29 +1,61 @@
 import { useEffect, useRef, useState } from "react";
-import { socket } from "../../../socket";
+import { studentSocket } from "../../../socket";
+import Button from "../../../components/button";
 
 function Page() {
   const [quizList, setQuizList] = useState([]);
-  const [correctAnswer, setCorrectAnswer] = useState();
-  const socketRef = useRef(socket);
-  const quizes = JSON.parse(localStorage.getItem("quiz"))
-  console.log("local", quizes)
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const socketRef = useRef(studentSocket);
+  const quizes = JSON.parse(localStorage.getItem("quiz"));
+  const studentData = JSON.parse(localStorage.getItem("studentData"));
 
   useEffect(() => {
-    if (!socketRef.current.connected) {
-      socketRef.current.connect();
+    const socket = socketRef.current;
+
+    // Socketni ulanadi
+    if (!socket.connected) {
+      socket.connect();
     }
+
+    socketRef.current.emit("startQuiz");
 
     const handleQuizList = (data) => {
       console.log("📜 quizList:", data);
-      setQuizList(data.questions || []);
+      const questions = data.quiz.questions || [];
+      console.log("Questions:", questions);
+      setQuizList(questions);
     };
 
-    socketRef.current.on("quizList", handleQuizList);
+    socket.on("quizList", handleQuizList);
+    socket.on("answerIsCorrect", (data) => {
+      console.log(data)
+    })
 
     return () => {
-      socketRef.current.off("quizList", handleQuizList);
+      // socket.off();
+      socket.off("quizList", handleQuizList);
+      // socket.disconnect();
     };
   }, []);
+
+  const handleSelectOption = (questionId, answerId) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: answerId,
+    }));
+
+    socketRef.current.emit("answer", {
+      answerId,
+      questionId,
+      roomCode: studentData.roomCode,
+    });
+    console.log(("answer", {
+      answerId,
+      questionId,
+      roomCode: studentData.roomCode,
+    }))
+
+  };
 
   return (
     <div className="main min-h-screen py-10 px-10 md:px-20 flex flex-col items-center">
@@ -38,58 +70,42 @@ function Page() {
         </h3>
       </div>
       {quizes?.quiz?.questions.map((item, index) => (
-        <div className="max-w-[1000px] mx-auto w-full p-10 bg-[#141f25] rounded-[30px] ">
+        <div
+          key={index}
+          className="max-w-[1000px] mx-auto w-full p-10 bg-[#141f25] rounded-[30px] mb-10"
+        >
           <h3 className="text-[40px] leading-[100%] font-bold text-start text-white mb-10">
-            {index+1}. {item.questionText}
+            {index + 1}. {item.questionText}
           </h3>
           <div className="flex flex-col gap-5">
-            {item.answers.map((answerItem, answerIndex) => (
-              <div
-                key={item.id}
-                className={`w-full ${correctAnswer === "1" ? "border-orange-500" : "border-white"} cursor-pointer border-2 rounded-[10px] p-5`}
-                onClick={() => setCorrectAnswer("1")}
-              >
-                <h3 className="text-[20px] leading-[100%] font-bold text-start text-white">
-                  {answerIndex+1}. {answerItem.answerText}
-                </h3>
-              </div>
-            ))}
-            {/* <div
-              className={`w-full ${correctAnswer === "2" ? "border-orange-500" : "border-white"} cursor-pointer border-2 rounded-[10px] p-5`}
-              onClick={() => setCorrectAnswer("2")}
-            >
-              <h3 className="text-[20px] leading-[100%] font-bold text-start text-white">
-                1. Samarqand
-              </h3>
-            </div>
-            <div
-              className={`w-full ${correctAnswer === "3" ? "border-orange-500" : "border-white"} cursor-pointer border-2 rounded-[10px]  p-5`}
-              onClick={() => setCorrectAnswer("3")}
-            >
-              <h3 className="text-[20px] leading-[100%] font-bold text-start text-white">
-                1. Andijon
-              </h3>
-            </div> */}
+            {item.answers.map((answerItem, answerIndex) => {
+              const isSelected = selectedAnswers[item.id] === answerItem.id; // 🔸 tanlangan javobni tekshiradi
+              return (
+                <div
+                  key={answerItem.id}
+                  onClick={() => handleSelectOption(item.id, answerItem.id)}
+                  className={`w-full cursor-pointer border-2 rounded-[10px] p-5 transition-all duration-200 ${
+                    isSelected
+                      ? "border-orange-500 bg-orange-500/10"
+                      : "border-white hover:border-orange-400"
+                  }`}
+                >
+                  <h3 className="text-[20px] font-bold text-start text-white">
+                    {answerIndex + 1}. {answerItem.answerText}
+                  </h3>
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}
-      {/* <div className="grid grid-cols-3 gap-4">
-        <div className="flex justify-center items-center h-[250px] w-full px-10 bg-[#141f25] rounded-[30px] cursor-pointer ">
-          <h3 className="text-[40px] text-white leading-[100%] font-bold z-10">
-            Samarqand
-          </h3>
-        </div>
-        <div className="flex justify-center items-center h-[250px] w-full px-10 bg-[#141f25] rounded-[30px] cursor-pointer ">
-          <h3 className="text-[40px] text-white leading-[100%] font-bold z-10">
-            Andijon
-          </h3>
-        </div>
-        <div className="flex justify-center items-center h-[250px] w-full px-10 bg-[#141f25] rounded-[30px] cursor-pointer ">
-          <h3 className="text-[40px] text-white leading-[100%] font-bold z-10">
-            Toshkent
-          </h3>
-        </div>
-      </div> */}
+
+      <Button
+        type="submit"
+        className="w-full p-5 text-[20px] bg-white mb-10 cursor-pointer"
+      >
+        Yuborish
+      </Button>
     </div>
   );
 }
