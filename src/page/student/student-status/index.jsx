@@ -30,16 +30,17 @@ function Page() {
         name: studentName,
       });
     });
-    
-    // O'quvchilar ro'yxatini olish
+
     const handleStudentList = (data) => {
-      const teacherData = JSON.parse(localStorage.getItem("roomData")).teacher;
+      const dataLocal = localStorage.getItem("studentData");
+      const studentData = JSON.parse(dataLocal);
 
       console.log("students =>", data.students);
-      console.log("teacher=>", teacherData);
-
+      console.log("teacher=>", studentData);
+      const studentId = data.students.find((t) => t.name === studentData.name)
+      localStorage.setItem("studentId", JSON.stringify(studentId))
       const students = data.students.filter(
-        (student) => student.name !== teacherData.name
+        (student) => student.name !== studentData.teacher
       );
       setStudents(students);
     };
@@ -55,11 +56,8 @@ function Page() {
     socket.on("studentListUpdate", handleStudentList);
 
     return () => {
-      // socket.off();
       socket.off("quizList", handleQuizList);
       socket.off("studentListUpdate", handleStudentList);
-      // Komponent unmount bo‘lganda disconnect qilamiz
-      // socket.disconnect();
     };
   }, [roomCode, studentName]);
 

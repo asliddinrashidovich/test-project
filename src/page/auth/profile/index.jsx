@@ -36,6 +36,8 @@ function Page() {
         },
       });
       toast.success("Parol muvafiqiyatli o'zgardi")
+      setCurrentPassword("")
+      setNewPassword("")
     } catch (err) {
       toast.error(err?.response?.data?.message ?? "Something went wrong!");
     }
@@ -80,7 +82,7 @@ function Page() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
-                <button className="p-3 bg-blue-500 rounded-[10px] text-white">
+                <button className="p-3 cursor-pointer bg-blue-500 rounded-[10px] text-white">
                   O'zgartirish
                 </button>
               </form>

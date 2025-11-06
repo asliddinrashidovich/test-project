@@ -11,14 +11,13 @@ function Page() {
   const navigate = useNavigate();
 
   function handleSubmit(e) {
+    e.preventDefault();
+    
     const data = localStorage.getItem("studentData");
     const studentData = JSON.parse(data);
-    console.log({ studentName });
     studentData.name = name;
-
     localStorage.setItem("studentData", JSON.stringify(studentData));
 
-    e.preventDefault();
     setQueryName(name);
     setRoomCode(roomCode);
     setTeacherName(teacher);

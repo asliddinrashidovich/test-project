@@ -81,9 +81,14 @@ function FormContent() {
         {isPending ? "Yuborilmoqda..." : "Kirish"}
       </Button>
 
-      <a href="/sign-up" className="text-white">
-        Ro’yhatdan o’tish
-      </a>
+      <div className="flex items-center justify-between">
+        <a href="/sign-up" className="text-white">
+          Ro’yhatdan o’tish
+        </a>
+        <a href="/students/code" className="text-gray-300 ">
+          Testga qo'shilish
+        </a>
+      </div>
     </form>
   );
 }

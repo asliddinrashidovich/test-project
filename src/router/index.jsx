@@ -60,7 +60,7 @@ function MyRoutes() {
           <Route path={"/sign-up"} element={<RegisterPage />} />
           <Route path={"/students/code"} element={<StudentCode />} />
           <Route path={"/students/name"} element={<StudentName />} />
-          <Route path={"/students/result"} element={<StudentResult />} />
+          <Route path={"/students/result/:id"} element={<StudentResult />} />
           <Route path={"/students/status"} element={<StudentStatus />} />
           <Route path={"/students/questions"} element={<StudentQuestion />} />
           <Route path="/*" element={<Navigate to="/login" />} />

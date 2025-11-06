@@ -9,7 +9,6 @@ import toast from "react-hot-toast";
 function Page() {
   const navigate = useNavigate();
   const [, setRoomCode] = useQueryState("roomCode");
-  const [quiz, setQuiz] = useState();
   const [rCode, setRCode] = useState();
 
   const handleSubmit = async (e) => {
@@ -18,13 +17,10 @@ function Page() {
       const res = await axios.post(`/api/quiz/room-code`, { roomCode: rCode });
       setRoomCode(rCode);
       const quiz = res.data.data;
-      console.log("quiz =>", quiz);
       localStorage.setItem(
         "studentData",
-        JSON.stringify({ roomCode: quiz.roomCode })
+        JSON.stringify({ roomCode: quiz.roomCode, teacher: quiz.teacher.name })
       );
-
-      // localStorage.setItem("roomData", JSON.stringify(res?.data?.data))
       navigate("/students/name");
     } catch (err) {
       toast.error(err?.response?.data?.message ?? "Something went wrong!");
@@ -55,6 +51,7 @@ function Page() {
           </Button>
         </div>
       </form>
+      <span className="absolute bottom-5 cursor-pointer" onClick={() => navigate("/sign-up")}>Test yaratish</span>
     </div>
   );
 }

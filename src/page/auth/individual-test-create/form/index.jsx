@@ -27,7 +27,7 @@ function FormContent() {
         {
           questionText: "",
           correctOption: 0,
-          options: [{ answerText: "", isCorrect: false }],
+          options: [{ answerText: "", isCorrect: true }],
         },
       ],
     },
@@ -69,7 +69,7 @@ function FormContent() {
         questionText: q.questionText,
         options: q.options.map((opt, i) => ({
           answerText: opt.answerText,
-          isCorrect: i === correctQuizId,
+          isCorrect: i === q.correctOption,
         })),
       })),
     };
@@ -135,7 +135,7 @@ function FormContent() {
 
         <Button
           type="submit"
-          className="w-full p-5 text-[20px] bg-white mb-10 cursor-pointer"
+          className="w-full border-[#141f25] border-4 p-5 text-[20px] bg-white mb-10 cursor-pointer"
         >
           KEYINGI BOSQICH
         </Button>

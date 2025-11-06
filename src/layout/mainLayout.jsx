@@ -33,7 +33,7 @@ function MainLayout() {
   return (
     <div className="relative">
       <div
-        className={`bg-[#141f25] ${
+        className={`bg-[#141f25] translation-all duration-200 ${
           isOpen ? "w-20 md:w-60" : "w-0 md:w-20"
         } bottom-0 left-0 top-0 fixed z-20`}
       >
@@ -121,7 +121,7 @@ function MainLayout() {
       </div>
 
       <div
-        className={`min-h-screen main  relative ${
+        className={`min-h-screen main translation-all duration-200 relative ${
           isOpen
             ? "w-[calc(100vw-80px)] md:w-[calc(100vw-240px)]"
             : "w-full md:w-[calc(100vw-80px)]"

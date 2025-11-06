@@ -39,7 +39,7 @@ function FormContent() {
       });
       setAccessToken(res.data.tokens.accessToken);
       setRefreshToken(res.data.tokens.setRefreshToken);
-      localStorage.setItem("user", JSON.stringify(data))
+      localStorage.setItem("user", JSON.stringify(data));
       toast.success("Muvaffaqiyatli ro'yhatdan o'tdingiz!");
       navigate("/dashboard");
       setIsPending(false);
@@ -106,6 +106,11 @@ function FormContent() {
         Avval ro’yhatdan o’tganmisiz?{" "}
         <span className="text-blue-500">Login</span>
       </a>
+      <div className="w-full mt-3">
+        <a href="/students/code" className="text-gray-300 ">
+          Testga qo'shilish
+        </a>
+      </div>
     </form>
   );
 }
