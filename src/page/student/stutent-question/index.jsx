@@ -7,13 +7,41 @@ import axios from "axios";
 
 function Page() {
   const [quizList, setQuizList] = useState([]);
-  const [selectedAnswers, setSelectedAnswers] = useState({}); // { questionId: answerId }
-  const [answerResults, setAnswerResults] = useState({}); // { questionId: true/false }
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [answerResults, setAnswerResults] = useState({});
+  const [correctAns, setCorrectAns] = useState();
+  const [duration, setDuration] = useState();
+  const [timeLeft, setTimeLeft] = useState(null);
+
   const navigate = useNavigate();
-  const [correctAns, setCorrectAns] = useState(); // { questionId: true/false }
   const socketRef = useRef(studentSocket);
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   const studentId = JSON.parse(localStorage.getItem("studentId"));
+
+  useEffect(() => {
+    if (!duration) return; 
+    setTimeLeft(duration); 
+
+    const dataLocal = localStorage.getItem("studentData");
+    const studentData = JSON.parse(dataLocal);
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          socketRef.current.emit("endQuiz", {
+            studentId: studentId.id,
+            teacherId: studentData.teacher
+          })
+          navigate(`/students/result/${studentId.id}`);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [duration]); 
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -23,6 +51,7 @@ function Page() {
 
     const handleQuizList = (data) => {
       console.log("📜 quizList:", data);
+      setDuration(data.quiz.duration); 
       const questions = data.quiz.questions || [];
       setQuizList(questions);
     };
@@ -38,22 +67,18 @@ function Page() {
   }, []);
 
   const handleSelectOption = (questionId, answerId, isCorrect) => {
-    // 🔒 har bir savol faqat bir marta tanlanadi
     if (selectedAnswers[questionId]) return;
 
-    // Tanlangan javobni yozamiz
     setSelectedAnswers((prev) => ({
       ...prev,
       [questionId]: answerId,
     }));
 
-    // To‘g‘rilikni yozamiz
     setAnswerResults((prev) => ({
       ...prev,
       [questionId]: isCorrect,
     }));
 
-    // Serverga yuborish (agar kerak bo‘lsa)
     socketRef.current.emit("answer", {
       answerId,
       questionId,
@@ -76,11 +101,17 @@ function Page() {
       toast.error(err?.response?.data?.message ?? "Something went wrong!");
     }
   }
+
   return (
     <div className="main min-h-screen py-10 px-10 md:px-20 flex flex-col items-center">
       <div className="max-w-[1000px] mx-auto w-full p-7 bg-[#141f25] rounded-[30px] mb-10">
         <h3 className="text-[35px] font-bold text-center text-white">
           Test boshlandi, savollarga javob bering
+        </h3>
+        <h3 className="text-[35px] font-bold text-center text-white">
+          {timeLeft !== null
+            ? `Testning qolgan vaqti: ${timeLeft} soniya`
+            : "Tayyorlanmoqda..."}
         </h3>
       </div>
 
@@ -101,15 +132,10 @@ function Page() {
 
               let borderColor = "border-white hover:border-orange-400";
 
-              // 🔸 Ranglarni aniqlash
               if (isSelected && isAnswered) {
-                if (isCorrect) {
-                  // toast.success("Siz to'g'ri javob berdingiz")
-                  borderColor = "border-green-500 bg-green-500/10";
-                } else {
-                  // toast.error("Siz noto'g'ri javob berdingiz")
-                  borderColor = "border-red-400 bg-red-500/10";
-                }
+                borderColor = isCorrect
+                  ? "border-green-500 bg-green-500/10"
+                  : "border-red-400 bg-red-500/10";
               }
 
               return (

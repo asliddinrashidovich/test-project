@@ -1,5 +1,25 @@
+import { useEffect, useRef } from "react";
+import { studentSocket } from "../../../socket";
+
 function Page() {
   const result = JSON.parse(localStorage.getItem("studentResult")) || {}
+  const socketRef = useRef(studentSocket);
+
+   useEffect(() => {
+      const socket = socketRef.current;
+      if (!socket.connected) socket.connect();
+  
+      // socket.emit("startQuiz");
+      const handleResult = (data) => {
+        console.log("📜 result:", data);
+      };
+  
+      socket.on("result", handleResult);
+  
+      return () => {
+        socket.off("result", handleResult);
+      };
+    }, []);
   return (
     <div className="main min-h-screen py-10 px-10 md:px-20 flex flex-col items-center">
       <div className="max-w-[1000px] mx-auto w-full p-7 bg-[#141f25] rounded-[30px] mb-10">
@@ -23,7 +43,7 @@ function Page() {
             </h3>
           </div>
         </div> */}
-        
+
       </div>
     </div>
   );

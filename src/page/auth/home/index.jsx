@@ -31,7 +31,7 @@ function Page() {
     try {
       const res = await axios.post(
         `/api/quiz`,
-        { type, testTime },
+        { type, duration: testTime },
         {
           headers: {
             "Content-Type": "application/json",
