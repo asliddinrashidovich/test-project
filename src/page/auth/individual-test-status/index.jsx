@@ -25,7 +25,7 @@ function Page() {
       console.error("⚠️ Socket xato:", err);
     });
 
-    socket.emit("answer", )
+    // socket.emit("answer", )
 
     return () => {
       socket.off("connect");

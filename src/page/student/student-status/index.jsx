@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/button";
 import { useQueryState } from "nuqs";
-import { socket } from "../../../socket";
+import { studentSocket } from "../../../socket";
 import toast from "react-hot-toast";
 
 function Page() {
@@ -12,48 +12,61 @@ function Page() {
   const [roomCode] = useQueryState("roomCode");
   const [studentName] = useQueryState("name");
   const navigate = useNavigate();
-  const socketRef = useRef(socket);
-  const teacher = JSON.parse(localStorage.getItem("roomData"));
+  const socketRef = useRef(studentSocket);
 
   useEffect(() => {
-    if (!socketRef.current.connected) {
-      socketRef.current.connect();
+    const socket = socketRef.current;
+
+    // Socketni ulanadi
+    if (!socket.connected) {
+      socket.connect();
     }
 
-    socketRef.current.emit("joinRoom", {
-      roomCode: String(roomCode),
-      name: studentName,
+    socket.on("connect", () => {
+      console.log("✅ Connected:", socket.id);
+
+      socket.emit("joinRoom", {
+        roomCode: String(roomCode),
+        name: studentName,
+      });
     });
 
     // O'quvchilar ro'yxatini olish
     const handleStudentList = (data) => {
-      const uniqueStudents = Array.from(
-        new Map(data.students.map((s) => [s.name, s])).values()
+      const teacherData = JSON.parse(localStorage.getItem("roomData")).teacher;
+
+      console.log("students =>", data.students);
+      console.log("teacher=>", teacherData);
+
+      const students = data.students.filter(
+        (student) => student.name !== teacherData.name
       );
-      const filteredData = uniqueStudents.filter(
-        (t) => t.name !== teacher.teacher.name
-      );
-      const filteredData2 = filteredData.filter((t) => t.name !== "");
-      setStudents(filteredData2);
+      // const filteredData2 = filteredData.filter((t) => t.name !== "");
+      setStudents(students);
     };
 
     const handleQuizList = (data) => {
+      const quiz = data.quiz;
+      console.log("quiz =>", quiz);
       setQuestions(data.quiz.questions);
       setQuiz(data);
     };
-    
-    socketRef.current.on("quizList", handleQuizList);
-    socketRef.current.on("studentListUpdate", handleStudentList);
+
+    socket.on("quizList", handleQuizList);
+    socket.on("studentListUpdate", handleStudentList);
 
     return () => {
-      socketRef.current.off("quizList", handleQuizList);
-      socketRef.current.off("studentListUpdate", handleStudentList);
+      // socket.off();
+      socket.off("quizList", handleQuizList);
+      socket.off("studentListUpdate", handleStudentList);
+      // Komponent unmount bo‘lganda disconnect qilamiz
+      // socket.disconnect();
     };
-  }, [roomCode, studentName, teacher]);
+  }, [roomCode, studentName]);
 
   useEffect(() => {
     if (questions.length > 0) {
-      localStorage.setItem("quiz", JSON.stringify(quiz))
+      localStorage.setItem("quiz", JSON.stringify(quiz));
       navigate("/students/questions");
     }
   }, [questions, navigate]);

@@ -4,26 +4,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Page() {
-  const [roomCode, setRoomCode] = useQueryState("roomCode")
-  const [, setQueryName] = useQueryState("name")
-  const [teacher, setTeacherName] = useQueryState("teacher")
-  const [name, setName] = useState()
-  const navigate = useNavigate()
-
+  const [roomCode, setRoomCode] = useQueryState("roomCode");
+  const [studentName, setQueryName] = useQueryState("name");
+  const [teacher, setTeacherName] = useQueryState("teacher");
+  const [name, setName] = useState();
+  const navigate = useNavigate();
 
   function handleSubmit(e) {
-    e.preventDefault()
-    setQueryName(name)
-    setRoomCode(roomCode)
-    setTeacherName(teacher)
-    navigate(`/students/status`)
+    const data = localStorage.getItem("studentData");
+    const studentData = JSON.parse(data);
+    console.log({ studentName });
+    studentData.name = name;
+
+    localStorage.setItem("studentData", JSON.stringify(studentData));
+
+    e.preventDefault();
+    setQueryName(name);
+    setRoomCode(roomCode);
+    setTeacherName(teacher);
+    navigate(`/students/status`);
   }
   return (
     <div className="main px-10 md:px-20 flex items-center justify-center h-screen">
       <form onSubmit={handleSubmit} className="text-center">
-        <h2 className="text-[35px] font-bold mb-10">
-          Ismingizni kiriting
-        </h2>
+        <h2 className="text-[35px] font-bold mb-10">Ismingizni kiriting</h2>
         <div className="w-full md:w-[400px] mx-auto p-5 bg-white rounded-[10px]">
           <input
             className={

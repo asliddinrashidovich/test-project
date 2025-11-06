@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../../../store/useAuthStore";
-import { socket } from "../../../socket";
+import { teacherSocket } from "../../../socket";
 
 function Page() {
   const navigate = useNavigate();
@@ -17,31 +17,43 @@ function Page() {
   const teacherName = JSON.parse(localStorage.getItem("user"));
   const roomCodeString = JSON.parse(localStorage.getItem("roomCode"));
 
-  const socketRef = useRef(socket);
+  const socketRef = useRef(teacherSocket);
 
   useEffect(() => {
-    if (!socketRef.current.connected) {
-      socketRef.current.connect();
+    const socket = socketRef.current;
+
+    // Socketni ulanadi
+    if (!socket.connected) {
+      socket.connect();
     }
 
-    socketRef.current.emit("joinRoom", {
-      roomCode: String(roomCodeString.roomCode),
-      name: teacherN ?? "",
+    socket.on("connect", () => {
+      console.log("✅ Connected:", socket.id);
+
+      socket.emit("joinRoom", {
+        roomCode: String(roomCodeString.roomCode),
+        name: teacherName.name ?? "",
+      });
     });
 
     const handleStudentList = (data) => {
-      const uniqueStudents = Array.from(
-        new Map(data.students.map((s) => [s.name, s])).values()
+      console.log("auth students =>", data.students);
+      console.log("auth teacher =>", teacherName);
+
+      const students = data.students.filter(
+        (student) => student.name !== teacherName.name
       );
-      const filteredData = uniqueStudents.filter((t) => t.name !== teacherN);
-      const filteredData2 = filteredData.filter((t) => t.name !== "");
-      setStudents(filteredData2);
+
+      setStudents(students);
     };
 
-    socketRef.current.on("studentListUpdate", handleStudentList);
+    socket.on("studentListUpdate", handleStudentList);
 
     return () => {
-      socketRef.current.off("studentListUpdate", handleStudentList);
+      socket.off("connect");
+      socket.off("studentListUpdate", handleStudentList);
+      // Komponent unmount bo‘lganda disconnect qilamiz
+      socket.disconnect();
     };
   }, []);
 
