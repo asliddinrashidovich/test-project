@@ -24,9 +24,10 @@ function Page() {
       roomCode: String(roomCode),
       name: studentName,
     });
-
+    
     // O'quvchilar ro'yxatini olish
     const handleStudentList = (data) => {
+      console.log("data", data)
       const uniqueStudents = Array.from(
         new Map(data.students.map((s) => [s.name, s])).values()
       );
