@@ -2,24 +2,31 @@ import { useEffect, useRef } from "react";
 import { studentSocket } from "../../../socket";
 
 function Page() {
-  const result = JSON.parse(localStorage.getItem("studentResult")) || {}
+  const result = JSON.parse(localStorage.getItem("studentResult")) || {};
   const socketRef = useRef(studentSocket);
+  const dataLocal = localStorage.getItem("studentData");
+  const studentData = JSON.parse(dataLocal);
+  const studentId = JSON.parse(localStorage.getItem("studentId"));
 
-   useEffect(() => {
-      const socket = socketRef.current;
-      if (!socket.connected) socket.connect();
-  
-      // socket.emit("startQuiz");
-      const handleResult = (data) => {
-        console.log("📜 result:", data);
-      };
-  
-      socket.on("result", handleResult);
-  
-      return () => {
-        socket.off("result", handleResult);
-      };
-    }, []);
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket.connected) socket.connect();
+
+    socket.emit("endQuiz");
+    socketRef.current.emit("endQuiz", {
+      studentId: studentId.id,
+      teacherId: studentData.teacher,
+    });
+    const handleResult = (data) => {
+      console.log("📜 result:", data);
+    };
+
+    socket.on("result", handleResult);
+
+    return () => {
+      socket.off("result", handleResult);
+    };
+  }, []);
   return (
     <div className="main min-h-screen py-10 px-10 md:px-20 flex flex-col items-center">
       <div className="max-w-[1000px] mx-auto w-full p-7 bg-[#141f25] rounded-[30px] mb-10">
@@ -31,8 +38,14 @@ function Page() {
         <h3 className="text-[40px] leading-[100%] font-bold text-center text-white mb-4">
           Sizning natijangiz {result.score}% 🎉🎉
         </h3>
-        <p className="text-[20px] font-semibold text-white text-center mb-2">To'g'ri javoblar: <span className="text-green-400">{result.totalCorrect}</span></p>
-        <p className="text-[20px] font-semibold text-white text-center">Jami savollar: <span className="text-blue-400">{result.totalQuestion}</span></p>
+        <p className="text-[20px] font-semibold text-white text-center mb-2">
+          To'g'ri javoblar:{" "}
+          <span className="text-green-400">{result.totalCorrect}</span>
+        </p>
+        <p className="text-[20px] font-semibold text-white text-center">
+          Jami savollar:{" "}
+          <span className="text-blue-400">{result.totalQuestion}</span>
+        </p>
       </div>
       <div className="flex items-center justify-center">
         {/* <div>
@@ -43,7 +56,6 @@ function Page() {
             </h3>
           </div>
         </div> */}
-
       </div>
     </div>
   );

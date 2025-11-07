@@ -19,8 +19,8 @@ function Page() {
   const studentId = JSON.parse(localStorage.getItem("studentId"));
 
   useEffect(() => {
-    if (!duration) return; 
-    setTimeLeft(duration); 
+    if (!duration) return;
+    setTimeLeft(duration);
 
     const dataLocal = localStorage.getItem("studentData");
     const studentData = JSON.parse(dataLocal);
@@ -29,11 +29,17 @@ function Page() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          console.log(studentId.id)
+          console.log(studentData.teacher)
           socketRef.current.emit("endQuiz", {
             studentId: studentId.id,
-            teacherId: studentData.teacher
-          })
-          navigate(`/students/result/${studentId.id}`);
+            teacherId: studentData.teacher,
+          });
+          const handleResult = (data) => {
+            console.log("📜 result:", data);
+          };
+          socketRef.current.on("result", handleResult);
+          // navigate(`/students/result/${studentId.id}`);
           return 0;
         }
         return prev - 1;
@@ -41,7 +47,7 @@ function Page() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [duration]); 
+  }, [duration]);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -51,7 +57,7 @@ function Page() {
 
     const handleQuizList = (data) => {
       console.log("📜 quizList:", data);
-      setDuration(data.quiz.duration); 
+      setDuration(data.quiz.duration);
       const questions = data.quiz.questions || [];
       setQuizList(questions);
     };

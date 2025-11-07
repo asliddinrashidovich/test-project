@@ -22,14 +22,11 @@ function Page() {
   useEffect(() => {
     const socket = socketRef.current;
 
-    // Socketni ulanadi
     if (!socket.connected) {
       socket.connect();
     }
 
     socket.on("connect", () => {
-      console.log("✅ Connected:", socket.id);
-
       socket.emit("joinRoom", {
         roomCode: String(roomCodeString.roomCode),
         name: teacherName.name ?? "",
@@ -37,9 +34,6 @@ function Page() {
     });
 
     const handleStudentList = (data) => {
-      console.log("auth students =>", data.students);
-      console.log("auth teacher =>", teacherName);
-
       const students = data.students.filter(
         (student) => student.name !== teacherName.name
       );
@@ -52,7 +46,6 @@ function Page() {
     return () => {
       socket.off("connect");
       socket.off("studentListUpdate", handleStudentList);
-      // Komponent unmount bo‘lganda disconnect qilamiz
       socket.disconnect();
     };
   }, []);
